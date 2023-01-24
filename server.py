@@ -32,9 +32,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
     
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        # print ("Got a request of: %s\n" % self.data)
-        self.data = self.data.decode("utf-8")  # decode from binary
-        self.data = self.data.split(" ")  # make array from spaces
+        # decode from binary
+        self.data = self.data.decode("utf-8")  
+        # make array from spaces
+        self.data = self.data.split(" ") 
         if self.data[0] == 'GET':
             self.get_method()
         else:
