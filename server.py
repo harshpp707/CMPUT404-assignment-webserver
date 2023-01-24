@@ -1,6 +1,7 @@
 #  coding: utf-8 
 import socketserver
-
+import os
+from sys import path
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,8 +32,50 @@ class MyWebServer(socketserver.BaseRequestHandler):
     
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
-        self.request.sendall(bytearray("OK",'utf-8'))
+        # print ("Got a request of: %s\n" % self.data)
+        self.data = self.data.decode("utf-8")  # decode from binary
+        self.data = self.data.split(" ")  # make array from spaces
+        if self.data[0] == 'GET':
+            self.get_method()
+        else:
+            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n", 'utf-8'))
+    
+    def get_method(self):
+        print(self.data[1])
+        #checking the last char
+        if self.data[1][-1] == '/':
+            self.send_all_data('./www'+self.data[1]+'/index.html',"text/html")
+            # print("HERE")
+
+        #checking the last 3 char
+        elif self.data[1][-3:] == 'css':
+            self.send_all_data('./www'+self.data[1], "text/css")
+
+        #checking last 4 char
+        elif self.data[1][-4:] == 'html':
+            self.send_all_data('./www'+self.data[1], "text/html")
+
+        #moved to different location
+        else:
+            self.request.sendall(bytearray("HTTP/1.1 301 Moved Permanently\r\n" + "Location: " + \
+                self.data[1] + "/\r\n", 'utf-8'))
+            
+    def send_all_data(self,path,content_type):
+        try:
+            f= open(path)
+            content = f.read()
+            f.close()
+            headers = "HTTP/1.1 200 OK\n" + "Content-Type: " + content_type + "\n" +  "Content-Length: " + str(len(content)) + "\r\n\r\n"
+            self.request.send(headers.encode())
+            self.request.send(content.encode())
+            # self.request.sendall(bytearray("HTTP/1.1 200 OK\r\n" + "\r\n" + "Content-Type: " + content_type + "\r\n" +  "Content-Length: " + str(len(content)) + "\r\n " + content + "\r\n\r\n", 'utf-8'))
+        except:
+            # print(e)
+            message = "HTTP/1.1 404 Not Found\r\n"
+            self.request.sendall(bytearray(message, 'utf-8'))
+        
+        
+
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
