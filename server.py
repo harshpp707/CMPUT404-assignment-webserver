@@ -2,7 +2,7 @@
 import socketserver
 import os
 from sys import path
-# Copyright 2013 Abram Hindle, Eddie Antonio Santos, Harsh Patel
+# Copyright 2013 Abram Hindle, Eddie Antonio Santos,Harsh Patel
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,29 +32,32 @@ class MyWebServer(socketserver.BaseRequestHandler):
     
     def handle(self):
         self.data = self.request.recv(1024).strip()
+
         # decode from binary
         self.data = self.data.decode("utf-8")  
         # make array from spaces
-        self.data = self.data.split(" ") 
+        self.data = self.data.split(" ")  
+        
         if self.data[0] == 'GET':
             self.get_method()
         else:
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n", 'utf-8'))
     
     def get_method(self):
-        print(self.data[1])
-        #checking the last char
-        if self.data[1][-1] == '/':
-            self.send_all_data('./www'+self.data[1]+'/index.html',"text/html")
+        data_ = self.data[1]
+
+        #last char
+        if data_[-1] == '/':
+            self.send_all_data('./www'+data_[1]+'/index.html',"text/html")
             # print("HERE")
 
-        #checking the last 3 char
-        elif self.data[1][-3:] == 'css':
-            self.send_all_data('./www'+self.data[1], "text/css")
+        #last 3 char
+        elif data_[-3:] == 'css':
+            self.send_all_data('./www'+data_[1], "text/css")
 
-        #checking last 4 char
-        elif self.data[1][-4:] == 'html':
-            self.send_all_data('./www'+self.data[1], "text/html")
+        #last 4 char
+        elif data_[-4:] == 'html':
+            self.send_all_data('./www'+data_[1], "text/html")
 
         #moved to different location
         else:
