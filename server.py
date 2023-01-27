@@ -48,21 +48,21 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
         #last char
         if data_[-1] == '/':
-            self.send_all_data('./www'+data_[1]+'/index.html',"text/html")
+            self.send_all_data('./www'+data_+'/index.html',"text/html")
             # print("HERE")
 
         #last 3 char
         elif data_[-3:] == 'css':
-            self.send_all_data('./www'+data_[1], "text/css")
+            self.send_all_data('./www'+data_, "text/css")
 
         #last 4 char
         elif data_[-4:] == 'html':
-            self.send_all_data('./www'+data_[1], "text/html")
+            self.send_all_data('./www'+data_, "text/html")
 
         #moved to different location
         else:
             self.request.sendall(bytearray("HTTP/1.1 301 Moved Permanently\r\n" + "Location: " + \
-                self.data[1] + "/\r\n", 'utf-8'))
+                data_ + "/\r\n", 'utf-8'))
             
     def send_all_data(self,path,content_type):
         try:
